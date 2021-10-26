@@ -1,5 +1,19 @@
 export interface User {
   id: number;
-  email: string;
+
+  studentId: number;
+
+  phone: string;
+
+  section: string;
+
+  isVerified: boolean;
+
+  nickname: string;
+
   password: string;
+
+  mannerRate: number;
+
+  email: string;
 }

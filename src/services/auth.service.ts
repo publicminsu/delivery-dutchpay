@@ -5,21 +5,21 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
-import userModel from '@models/users.model';
 import { isEmpty } from '@utils/util';
+import { getRepository } from 'typeorm';
+import { UserEntity } from '@/entity/user.entity';
 
 class AuthService {
-  public users = userModel;
+  public userRepository = getRepository(UserEntity);
 
   public async signup(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = this.users.find(user => user.email === userData.email);
+    const findUser: User = await this.userRepository.findOne(userData.email);
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const createUserData: User = { id: this.users.length + 1, ...userData, password: hashedPassword };
-
+    const createUserData: UserEntity = new UserEntity(userData, hashedPassword);
     return createUserData;
   }
 

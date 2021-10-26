@@ -13,6 +13,8 @@ import { routingControllersToSpec } from 'routing-controllers-openapi';
 import swaggerUi from 'swagger-ui-express';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import { createConnection } from 'typeorm';
+import { dbConnection } from './databases';
 
 class App {
   public app: express.Application;
@@ -28,6 +30,7 @@ class App {
     this.initializeRoutes(Controllers);
     this.initializeSwagger(Controllers);
     this.initializeErrorHandling();
+    this.initializeDB();
   }
 
   public listen() {
@@ -99,6 +102,10 @@ class App {
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
+  }
+
+  private initializeDB() {
+    createConnection(dbConnection);
   }
 }
 
