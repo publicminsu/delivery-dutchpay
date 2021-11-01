@@ -12,8 +12,11 @@ export enum Section {
 
 @Entity()
 export class UserEntity implements User {
-  constructor() {}
-
+  constructor(userData?:CreateUserDto) {
+    if(userData){
+      this.update(userData);
+    }
+  }
   public update(userData: CreateUserDto) {
     this.studentId = userData.studentId;
     this.phone = userData.phone;
