@@ -3,7 +3,7 @@ import App from '@/app';
 import { UsersController } from '@controllers/users.controller';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
-import userModel from '@models/users.model';
+import UserService from '@/services/users.service';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
@@ -12,7 +12,7 @@ afterAll(async () => {
 describe('Testing Users', () => {
   describe('[GET] /users', () => {
     it('response statusCode 200 / findAll', () => {
-      const findUser: User[] = userModel;
+      const findUser = new UserService().findAllUser();
 
       const app = new App([UsersController]);
       return request(app.getServer()).get('/users').expect(200, { data: findUser, message: 'findAll' });
@@ -22,7 +22,7 @@ describe('Testing Users', () => {
   describe('[GET] /users/:id', () => {
     it('response statusCode 200 / findOne', () => {
       const userId = 1;
-      const findUser: User = userModel.find(user => user.id === userId);
+      const findUser = new UserService().findUserById(1);
 
       const app = new App([UsersController]);
       return request(app.getServer()).get(`/users/${userId}`).expect(200, { data: findUser, message: 'findOne' });
@@ -32,8 +32,11 @@ describe('Testing Users', () => {
   describe('[POST] /users', () => {
     it('response statusCode 201 / created', async () => {
       const userData: CreateUserDto = {
-        email: 'test@email.com',
-        password: 'q1w2e3r4',
+        studentId: 2016250033,
+        phone: '010-1234-5678',
+        nickname: 'wooseob',
+        password: 'qwerty123',
+        email: 'qwert',
       };
 
       const app = new App([UsersController]);
@@ -45,8 +48,11 @@ describe('Testing Users', () => {
     it('response statusCode 200 / updated', async () => {
       const userId = 1;
       const userData: CreateUserDto = {
-        email: 'test@email.com',
-        password: 'q1w2e3r4',
+        studentId: 2016250033,
+        phone: '010-1234-5678',
+        nickname: 'wooseob',
+        password: 'qwerty123',
+        email: 'qwert',
       };
 
       const app = new App([UsersController]);

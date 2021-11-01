@@ -13,6 +13,9 @@ describe('Testing Auth', () => {
       const userData: CreateUserDto = {
         email: 'test@email.com',
         password: 'q1w2e3r4',
+        nickname: '철수',
+        studentId : 213131313,
+        phone :'012321313'
       };
 
       const app = new App([AuthController]);
@@ -25,6 +28,9 @@ describe('Testing Auth', () => {
       const userData: CreateUserDto = {
         email: 'lim@gmail.com',
         password: 'q1w2e3r4',
+        nickname: '철수',
+        studentId : 213131313,
+        phone :'012321313'
       };
 
       const app = new App([AuthController]);

@@ -1,4 +1,4 @@
-import { IsEmail, IsNumber, IsString } from 'class-validator';
+import { Contains, contains, IsEmail, IsNumber, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsNumber()
@@ -13,6 +13,7 @@ export class CreateUserDto {
   @IsString()
   public password: string;
 
-  @IsEmail()
+  @Contains('@hknu.ac.kr')
+  @IsEmail({allow_utf8_local_part:false})//utf8 영어가 아닌 경우 허용안함
   public email: string;
 }

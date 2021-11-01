@@ -14,7 +14,7 @@ describe('userService', () => {
       phone: '010-1234-5678',
       nickname: 'wooseob',
       password: 'qwerty123',
-      email: 'qwerty@hknu.ac.kr',
+      email: 'qwert',
     };
 
     const userService = new UserService();
@@ -22,6 +22,7 @@ describe('userService', () => {
     try {
       const created = await userService.createUser(userData);
       const found = await userService.findUserById(1);
+      const emailFind=await userService.findUserByEmail("qwerty@hknu.ac.kr");//제 기준으론 찾아졌어요.
       expect(found.studentId).toBe(created.studentId);
     } catch (err) {
       console.log('\n\n---- Error Raised! ----');
