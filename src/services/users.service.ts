@@ -16,7 +16,16 @@ class UserService {
   public async findUserById(userId: number): Promise<User> {
     const findUser: User = await this.userRepository.findOne(userId);
     if (!findUser) throw new HttpException(409, "You're not user");
-
+    return findUser;
+  }
+  public async findUserByEmail(userEmail:String):Promise<User>{
+    const findUser: User=await this.userRepository.findOne({where:{"email":userEmail}})
+    if (!findUser) throw new HttpException(409, "You're not user");
+    return findUser;
+  }
+  public async findUserByLogoutData(userEmail:String, userPassword:String):Promise<User>{
+    const findUser: User=await this.userRepository.findOne({where:{"email":userEmail,"password":userPassword}})
+    if (!findUser) throw new HttpException(409, "You're not user");
     return findUser;
   }
 
