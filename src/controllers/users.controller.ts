@@ -4,10 +4,13 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
 import { validationMiddleware } from '@middlewares/validation.middleware';
+import RoomService from '@/services/rooms.service';
+import { RoomEntity } from '@/entity/room.entity';
 
 @Controller()
 export class UsersController {
   public userService = new userService();
+  public roomService = new RoomService();
 
   @Get('/users')
   @OpenAPI({ summary: 'Return a list of users' })
@@ -45,5 +48,10 @@ export class UsersController {
   async deleteUser(@Param('id') userId: number) {
     const deleteUserData: User[] = await this.userService.deleteUser(userId);
     return { data: deleteUserData, message: 'deleted' };
+  }
+  @Post('/rooms/:rid/report/:uid')
+  @OpenAPI({ summary: 'report user' })
+  async reportUser(@Param('rid') roomId: number, @Param('uid') userId: number) {
+    //리폿정보
   }
 }
