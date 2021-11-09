@@ -1,7 +1,7 @@
+import { CreateRoomDto } from "@/dtos/room.dto";
 import { RoomEntity } from "@/entity/room.entity";
-import { Room } from "@/interfaces/room.interface";
 import RoomService from "@/services/rooms.service";
-import { Controller, Get, Param, Post } from "routing-controllers";
+import { Body, Controller, Get, Param, Post, Put } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
 
 @Controller()
@@ -12,11 +12,16 @@ export class RoomController{
         const findAllRoomsData: RoomEntity[] = await this.roomService.findAllRoom();
         return { data: findAllRoomsData, message: 'findAll' };
     }
-    @Get('/rooms/:rid')
+    @Put('/rooms/:rid')
     @OpenAPI({ summary: 'Return find a room' })
     async joinRoom(@Param('rid') roomId: number) {
       const findOneRoomData: RoomEntity = await this.roomService.findRoomById(roomId);
       return { data: findOneRoomData, message: 'findOne' };
-    }
+    }//생각해보니 방에 들어가면 상대방 유저들한테도 socketio 이벤트를 보내야할것 같습니다. 
     //메뉴,사진은 socketio
+    @Post('/rooms')
+    async createRoom(@Body() roomData: CreateRoomDto){
+      const createRoomData: RoomEntity = await this.roomService.createRoom(roomData);
+      return { data:createRoomData, message: 'created'}
+    }
 }
