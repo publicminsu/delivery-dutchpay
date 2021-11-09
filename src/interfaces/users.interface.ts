@@ -17,3 +17,7 @@ export interface User {
 
   email: string;
 }
+export interface RequestWithReportUser extends Request {
+  user: User;
+  reportType: number;
+}

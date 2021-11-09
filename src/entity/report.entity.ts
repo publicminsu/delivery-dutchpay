@@ -4,6 +4,7 @@ import { UserEntity } from "./user.entity";
 
 @Entity()
 export class reportEntity{
+    constructor(){}
     @PrimaryGeneratedColumn()
     id: number;
   

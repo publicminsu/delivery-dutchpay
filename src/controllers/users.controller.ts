@@ -1,7 +1,7 @@
-import { Controller, Param, Body, Get, Post, Put, Delete, HttpCode, UseBefore } from 'routing-controllers';
+import { Controller, Param, Body, Get, Post, Put, Delete, HttpCode, UseBefore, Req } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { CreateUserDto } from '@dtos/users.dto';
-import { User } from '@interfaces/users.interface';
+import { RequestWithReportUser, User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import RoomService from '@/services/rooms.service';
@@ -51,7 +51,11 @@ export class UsersController {
   }
   @Post('/rooms/:rid/report/:uid')
   @OpenAPI({ summary: 'report user' })
-  async reportUser(@Param('rid') roomId: number, @Param('uid') userId: number) {
-    //리폿정보
+  async reportUser(@Req() req: RequestWithReportUser,@Param('rid') roomId: number, @Param('uid') userId: number) {
+    await this.userService.reportUser(req.user.id,userId,roomId,req.reportType);
+    //반환을 뭘해야할지 모르겠어서 안적어뒀습니다. report DTO 작성해서 보내야할까요?
+    //req 객체 상속해서 쓰는거 같아서 이렇게 해봤습니다. 가능한지는 모르겠습니다.
+    //post방식이라 body로 써도 될거같은데 userdto랑 reportType정보가 같이 body에 담길수있는지 모르겠어서
+    //일단 이렇게 해두겠습니다.
   }
 }

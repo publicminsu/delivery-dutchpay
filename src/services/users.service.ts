@@ -5,9 +5,13 @@ import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
 import { UserEntity } from '@/entity/user.entity';
 import { getRepository } from 'typeorm';
+import { RoomEntity } from '@/entity/room.entity';
+import { reportEntity } from '@/entity/report.entity';
 
 class UserService {
   public userRepository = getRepository(UserEntity);
+  public roomRepository = getRepository(RoomEntity);
+  public reportRepository = getRepository(reportEntity);
 
   public async findAllUser(): Promise<User[]> {
     return this.userRepository.find();
@@ -73,6 +77,18 @@ class UserService {
 
     await this.userRepository.delete(userId);
     return this.findAllUser();
+  }
+  public async reportUser(accuserId: number,defendantId:number,roomId:number,reportType:number){
+    const findAccuser: UserEntity = await this.userRepository.findOne(accuserId);
+    const findDefendant: UserEntity = await this.userRepository.findOne(defendantId);
+    const findRoom: RoomEntity = await this.roomRepository.findOne(roomId);
+    if(!findAccuser||!findDefendant||!findRoom) throw new HttpException(409, "Wrong Report");
+    const report = new reportEntity();
+    report.accuser=findAccuser;
+    report.defendant=findDefendant;
+    report.room=findRoom;
+    report.reportType=reportType;
+    await this.reportRepository.save(report);
   }
 }
 
