@@ -11,7 +11,7 @@ import AuthService from '@services/auth.service';
 export class AuthController {
   public authService = new AuthService();
 
-  @Post('/signup')
+  @Post('/user/:uid')
   @UseBefore(validationMiddleware(CreateUserDto, 'body'))
   @HttpCode(201)
   async signUp(@Body() userData: CreateUserDto) {
@@ -19,7 +19,7 @@ export class AuthController {
     return { data: signUpUserData, message: 'signup' };
   }
 
-  @Post('/login')
+  @Post('/user/login')
   @UseBefore(validationMiddleware(CreateUserDto, 'body'))
   async logIn(@Res() res: Response, @Body() userData: CreateUserDto) {
     const { cookie, findUser } = await this.authService.login(userData);
@@ -28,7 +28,7 @@ export class AuthController {
     return { data: findUser, message: 'login' };
   }
 
-  @Post('/logout')
+  @Post('/user/logout')
   @UseBefore(authMiddleware)
   async logOut(@Req() req: RequestWithUser, @Res() res: Response) {
     const userData: User = req.user;
