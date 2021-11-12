@@ -1,63 +1,104 @@
 import bcrypt, { hash } from 'bcrypt';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
-import { UserEntity } from '@/entity/user.entity';
+import { User } from '@/entity/user.entity';
 import { getRepository } from 'typeorm';
-import { RoomEntity } from '@/entity/room.entity';
-import { CreateRoomDto } from '@/dtos/room.dto';
-import { TipEntity } from '@/entity/tip.entity';
-import { MenuEntity } from '@/entity/menu.entity';
+import { Room } from '@/entity/room.entity';
+import { AddMenuDto, CreateRoomDto, JoinRoomDto } from '@/dtos/room.dto';
+import { Tip } from '@/entity/tip.entity';
+import { Menu } from '@/entity/menu.entity';
+import { Participant } from '@/entity/participant.entity';
 
 class RoomService {
-  public userRepository = getRepository(UserEntity);
-  public roomRepository = getRepository(RoomEntity);
-  public tipRepository = getRepository(TipEntity);
-  public menuRepository = getRepository(MenuEntity);
+  public userRepository = getRepository(User);
+  public roomRepository = getRepository(Room);
+  public tipRepository = getRepository(Tip);
+  public menuRepository = getRepository(Menu);
+  public participantRepository = getRepository(Participant);
 
-  public async findAllRoom(): Promise<RoomEntity[]> {
+  public async findAllRoom(): Promise<Room[]> {
     return this.roomRepository.find();
   }
 
-  public async findRoomById(roomId: number): Promise<RoomEntity> {
-    const findRoom: RoomEntity = await this.roomRepository.findOne(roomId);
-    if (!findRoom) throw new HttpException(409, "You're not user");
+  public async findRoomById(roomId: number): Promise<Room> {
+    const findRoom: Room = await this.roomRepository.findOne(roomId);
+    if (!findRoom) throw new HttpException(409, 'no room');
 
     return findRoom;
   }
 
-  public async createRoom(roomData: CreateRoomDto): Promise<RoomEntity> {
-    if (isEmpty(roomData)) throw new HttpException(400, "You're not userData");
+  public async createRoom(roomData: CreateRoomDto): Promise<Room> {
+    if (isEmpty(roomData)) throw new HttpException(400, 'invalid CreateRoomDto');
 
-    const perchaser = await this.userRepository.findOne(roomData.userEmail);
+    const purchaser = await this.userRepository.findOne({ email: roomData.userEmail });
 
-    const newRoom = new RoomEntity();
+    const newRoom = new Room();
     newRoom.date = new Date();
     newRoom.shop = roomData.shopName;
-    newRoom.totalPrice = 0;
-    newRoom.perchaser = perchaser;
+    newRoom.purchaser = purchaser;
 
-    const saved = await this.roomRepository.save(newRoom);
+    await this.roomRepository.save(newRoom);
 
     for (const tipInfo of roomData.tipInfos) {
-      let tip = new TipEntity();
+      let tip = new Tip();
       tip.largerThan = tipInfo.largerThan;
       tip.price = tipInfo.price;
       tip.room = newRoom;
       await this.tipRepository.save(tip);
     }
 
+    let purchaserInfo = new Participant();
+    purchaserInfo.room = newRoom;
+    purchaserInfo.user = purchaser;
+    purchaserInfo = await this.participantRepository.save(purchaserInfo);
+
+    const menus: Menu[] = [];
     for (const menuInfo of roomData.perchaserMenus) {
-      let menu = new MenuEntity();
-      menu.room = newRoom;
-      menu.user = perchaser;
+      let menu = new Menu();
       menu.menu = menuInfo.name;
       menu.price = menuInfo.price;
-      await this.menuRepository.save(menu);
+      menu.participantId = purchaserInfo.id;
+      menus.push(menu);
     }
 
-    return saved;
+    purchaserInfo.menus = menus;
+    newRoom.participants = [purchaserInfo];
+
+    return await this.roomRepository.save(newRoom);
+  }
+
+  public async joinRoom(joinData: JoinRoomDto): Promise<Room> {
+    if (isEmpty(joinData)) throw new HttpException(400, 'invalid JoinRoomDto');
+
+    const joinUser = await this.userRepository.findOne({ email: joinData.userEmail });
+    const targetRoom = await this.findRoomById(joinData.roomId);
+
+    const participantInfo = new Participant();
+    participantInfo.room = targetRoom;
+    participantInfo.user = joinUser;
+
+    targetRoom.participants.push(participantInfo);
+    return await this.roomRepository.save(targetRoom);
+  }
+
+  public async addMenu(addMenuData: AddMenuDto): Promise<Participant> {
+    if (isEmpty(addMenuData)) throw new HttpException(400, 'invalid AddMenuDto');
+
+    const joinUser = await this.userRepository.findOne({ email: addMenuData.userEmail });
+    const targetRoom = await this.findRoomById(addMenuData.roomId);
+
+    const participantInfo = await this.participantRepository.findOne({ room: targetRoom, user: joinUser });
+
+    for (const menuInfo of addMenuData.menus) {
+      let menu = new Menu();
+      menu.menu = menuInfo.name;
+      menu.price = menuInfo.price;
+      menu.participantId = participantInfo.id;
+      participantInfo.menus.push(menu);
+    }
+
+    return await this.participantRepository.save(participantInfo);
   }
 }
 

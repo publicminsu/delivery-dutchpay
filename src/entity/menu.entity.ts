@@ -1,17 +1,17 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { RoomEntity } from './room.entity';
-import { UserEntity } from './user.entity';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Participant } from './participant.entity';
 
 @Entity()
-export class MenuEntity {
+export class Menu {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(type => RoomEntity, roomEntity => roomEntity.id)
-  room: RoomEntity;
+  @Column()
+  participantId: number;
 
-  @ManyToOne(type => UserEntity, userEntity => userEntity.id)
-  user: UserEntity;
+  @ManyToOne(() => Participant, participant => participant.id)
+  @JoinColumn()
+  participant: Participant;
 
   @Column()
   menu: string;

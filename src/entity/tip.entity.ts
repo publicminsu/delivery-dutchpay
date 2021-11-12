@@ -1,15 +1,15 @@
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { RoomEntity } from './room.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Room } from './room.entity';
 
 @Entity()
-export class TipEntity {
+export class Tip {
   constructor() {}
 
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(type => RoomEntity, roomEntity => roomEntity.id)
-  room: RoomEntity;
+  @ManyToOne(() => Room, room => room.id)
+  room: Room;
 
   @Column({
     type: 'int',

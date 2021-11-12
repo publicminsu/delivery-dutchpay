@@ -1,10 +1,10 @@
-import { Room } from '@/interfaces/room.interface';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { MenuEntity } from './menu.entity';
-import { UserEntity } from './user.entity';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Participant } from './participant.entity';
+import { Tip } from './tip.entity';
+import { User } from './user.entity';
 
 @Entity()
-export class RoomEntity {
+export class Room {
   constructor() {}
 
   @PrimaryGeneratedColumn()
@@ -26,7 +26,12 @@ export class RoomEntity {
   })
   totalTip: number;
 
-  @ManyToOne(type => UserEntity, userEntity => userEntity.id)
-  @JoinColumn()
-  perchaser: UserEntity;
+  @ManyToOne(() => User, user => user.id, { eager: true })
+  purchaser: User;
+
+  @OneToMany(() => Participant, participant => participant.room, { cascade: true, eager: true })
+  participants: Participant[];
+
+  @OneToMany(() => Tip, tip => tip.room, { cascade: true, eager: true })
+  tipInfos: [Tip];
 }

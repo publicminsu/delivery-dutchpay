@@ -1,22 +1,22 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { RoomEntity } from "./room.entity";
-import { UserEntity } from "./user.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Room } from './room.entity';
+import { User } from './user.entity';
 
 @Entity()
-export class reportEntity{
-    constructor(){}
-    @PrimaryGeneratedColumn()
-    id: number;
-  
-    @ManyToOne(type => RoomEntity, roomEntity => roomEntity.id)
-    room: RoomEntity;
-  
-    @ManyToOne(type => UserEntity, userEntity => userEntity.id)
-    accuser: UserEntity;
+export class Report {
+  constructor() {}
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ManyToOne(type => UserEntity, userEntity => userEntity.id)
-    defendant: UserEntity;
-  
-    @Column()
-    reportType: number;
+  @ManyToOne(() => Room, room => room.id)
+  room: Room;
+
+  @ManyToOne(() => User, user => user.id)
+  accuser: User;
+
+  @ManyToOne(() => User, user => user.id)
+  defendant: User;
+
+  @Column()
+  reportType: number;
 }

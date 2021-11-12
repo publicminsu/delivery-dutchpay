@@ -4,14 +4,13 @@ import jwt from 'jsonwebtoken';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
-import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
 import { getRepository } from 'typeorm';
-import { UserEntity } from '@/entity/user.entity';
+import { User } from '@/entity/user.entity';
 import UserService from './users.service';
 
 class AuthService {
-  public userRepository = getRepository(UserEntity);
+  public userRepository = getRepository(User);
 
   public async signup(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
@@ -20,7 +19,7 @@ class AuthService {
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const createUserData: UserEntity = new UserEntity(userData);
+    const createUserData: User = new User(userData);
     return createUserData;
   }
 
@@ -45,7 +44,7 @@ class AuthService {
 
     //const findUser: User = this.users.find(user => user.email === userData.email && user.password === userData.password);
     const userService = new UserService();
-    const findUser: User = await userService.findUserByEmailPwd(userData.email,userData.password);
+    const findUser: User = await userService.findUserByEmailPwd(userData.email, userData.password);
     if (findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
