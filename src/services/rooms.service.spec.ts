@@ -1,11 +1,13 @@
 import { dbConnection } from '@/databases';
-import { CreateRoomDto } from '@/dtos/room.dto';
+import { AddMenuDto, CreateRoomDto, JoinRoomDto } from '@/dtos/room.dto';
 import { createConnection } from 'typeorm';
 import RoomService from './rooms.service';
 
 describe('roomService', () => {
-  beforeEach(async () => {
+  var roomService: RoomService;
+  beforeAll(async () => {
     await createConnection(dbConnection);
+    roomService = new RoomService();
   });
 
   it('shoud be created', async () => {
@@ -36,12 +38,62 @@ describe('roomService', () => {
       ],
     };
 
-    const roomService = new RoomService();
-
     try {
       const created = await roomService.createRoom(roomData);
       const found = await roomService.findRoomById(1);
+      console.log(found);
       expect(found.shop).toBe(created.shop);
+    } catch (err) {
+      console.log('\n\n---- Error Raised! ----');
+      console.log(err);
+    }
+  });
+
+  it('should be joined', async () => {
+    let joinData: JoinRoomDto = {
+      roomId: 1,
+      userEmail: 'cheolsu@hknu.ac.kr',
+    };
+
+    const room = await roomService.joinRoom(joinData);
+    console.log(room);
+    expect(room.participants.length).toBe(2);
+  });
+
+  it('menu should be added', async () => {
+    let menuData: AddMenuDto = {
+      roomId: 1,
+      userEmail: 'cheolsu@hknu.ac.kr',
+      menus: [
+        {
+          name: '싸이버거 세트',
+          price: 5900,
+        },
+        {
+          name: '콜드 가지 버거',
+          price: 3500,
+        },
+      ],
+    };
+
+    try {
+      const participant = await roomService.addMenu(menuData);
+      console.log(participant);
+      for (let p of participant.menus) {
+        console.log(p);
+      }
+      expect(1).toBe(1);
+    } catch (err) {
+      console.log('\n\n---- Error Raised! ----');
+      console.log(err);
+    }
+  });
+
+  it('shoud be found', async () => {
+    try {
+      const found = await roomService.findRoomById(1);
+      console.log(found);
+      expect(found.id).toBe(1);
     } catch (err) {
       console.log('\n\n---- Error Raised! ----');
       console.log(err);
