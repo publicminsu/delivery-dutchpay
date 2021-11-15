@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import config from 'config';
 import jwt from 'jsonwebtoken';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, LogoutUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { isEmpty } from '@utils/util';
@@ -27,7 +27,6 @@ class AuthService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
     const userService = new UserService();
     const findUser: User = await userService.findUserByEmail(userData.email);
-    //const findUser: User = this.users.find(user => user.email === userData.email);
     if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
 
     const isPasswordMatching: boolean = await bcrypt.compare(userData.password, findUser.password);
@@ -39,7 +38,7 @@ class AuthService {
     return { cookie, findUser };
   }
 
-  public async logout(userData: User): Promise<User> {
+  public async logout(userData: LogoutUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     //const findUser: User = this.users.find(user => user.email === userData.email && user.password === userData.password);
