@@ -1,5 +1,3 @@
-import bcrypt, { hash } from 'bcrypt';
-import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { User } from '@/entity/user.entity';

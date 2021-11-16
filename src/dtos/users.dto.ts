@@ -14,7 +14,18 @@ export class CreateUserDto {
   public password: string;
 
   @Contains('@hknu.ac.kr')
-  @IsEmail({allow_utf8_local_part:false})//utf8 영어가 아닌 경우 허용안함 제대로 적용이 되는지는 모르겠습니다.
-  //저번에 테스트했을때는 안됐습니다.
+  @IsEmail({ allow_utf8_local_part: false }) //잘 적용되는거 같습니다. hknu.ac.kr이여야합니다.
   public email: string;
+}
+export class LogoutUserDto {
+  @IsString()
+  public email: string;
+  @IsString()
+  public password: string;
+}
+export class reportUserDto {
+  @IsNumber()
+  public accuserId: number;
+  @IsNumber()
+  public reportType: number;
 }

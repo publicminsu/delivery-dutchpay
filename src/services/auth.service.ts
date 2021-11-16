@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import config from 'config';
 import jwt from 'jsonwebtoken';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, LogoutUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { isEmpty } from '@utils/util';
@@ -19,6 +19,7 @@ class AuthService {
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
+    userData.password = hashedPassword; //암호화를 사용하는거 같아서 교체했습니다.
     const createUserData: User = new User(userData);
     return createUserData;
   }
@@ -27,10 +28,10 @@ class AuthService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
     const userService = new UserService();
     const findUser: User = await userService.findUserByEmail(userData.email);
-    //const findUser: User = this.users.find(user => user.email === userData.email);
     if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
-
-    const isPasswordMatching: boolean = await bcrypt.compare(userData.password, findUser.password);
+    const hashedPassword = await bcrypt.hash(userData.password, 10); //암호화한 비밀번호를 비교해야하는거 같아서
+    //추가했습니다. 틀린지는 모르겠습니다.
+    const isPasswordMatching: boolean = await bcrypt.compare(hashedPassword, findUser.password);
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
 
     const tokenData = this.createToken(findUser);
@@ -39,12 +40,13 @@ class AuthService {
     return { cookie, findUser };
   }
 
-  public async logout(userData: User): Promise<User> {
+  public async logout(userData: LogoutUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     //const findUser: User = this.users.find(user => user.email === userData.email && user.password === userData.password);
     const userService = new UserService();
-    const findUser: User = await userService.findUserByEmailPwd(userData.email, userData.password);
+    const hashedPassword = await bcrypt.hash(userData.password, 10); //암호화한 비밀번호를 가져와서 찾기입니다
+    const findUser: User = await userService.findUserByEmailPwd(userData.email, hashedPassword);
     if (findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
