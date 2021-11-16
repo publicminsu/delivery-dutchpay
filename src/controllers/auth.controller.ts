@@ -30,11 +30,11 @@ export class AuthController {
 
   @Post('/logout')
   @UseBefore(authMiddleware)
-  async logOut(@Req() req: RequestWithUser, @Res() res: Response) {
-    const userData: User = req.user;
-    const logOutUserData: User = await this.authService.logout(userData);
+  async logOut(@Body() req: RequestWithUser, @Res() res: Response) {
+    const logOutUserData: User = await this.authService.logout('qwerty@hknu.ac.kr');
 
     res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
+    res.send();
     return { data: logOutUserData, message: 'logout' };
   }
 }

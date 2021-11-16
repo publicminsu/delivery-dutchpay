@@ -39,12 +39,12 @@ class AuthService {
     return { cookie, findUser };
   }
 
-  public async logout(userData: User): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+  public async logout(userEmail: string): Promise<User> {
+    if (isEmpty(userEmail)) throw new HttpException(400, "You're not userData");
 
     //const findUser: User = this.users.find(user => user.email === userData.email && user.password === userData.password);
     const userService = new UserService();
-    const findUser: User = await userService.findUserByEmailPwd(userData.email, userData.password);
+    const findUser: User = await userService.findUserByEmail(userEmail);
     if (findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
