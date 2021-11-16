@@ -1,4 +1,4 @@
-import { IsEmail, IsNumber, IsString } from 'class-validator';
+import { Contains, IsEmail, IsNumber, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsNumber()
@@ -13,6 +13,8 @@ export class CreateUserDto {
   @IsString()
   public password: string;
 
-  @IsEmail()
+  @Contains('@hknu.ac.kr')
+  @IsEmail({allow_utf8_local_part:false})//utf8 영어가 아닌 경우 허용안함 제대로 적용이 되는지는 모르겠습니다.
+  //저번에 테스트했을때는 안됐습니다.
   public email: string;
 }

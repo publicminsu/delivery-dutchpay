@@ -1,13 +1,16 @@
 import bcrypt, { hash } from 'bcrypt';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
-import { UserEntity } from '@/entity/user.entity';
+import { User } from '@/entity/user.entity';
 import { getRepository } from 'typeorm';
+import { Room } from '@/entity/room.entity';
+import { Report } from '@/entity/report.entity';
 
 class UserService {
-  public userRepository = getRepository(UserEntity);
+  public userRepository = getRepository(User);
+  public roomRepository = getRepository(Room);
+  public reportRepository = getRepository(Report);
 
   public async findAllUser(): Promise<User[]> {
     return this.userRepository.find();
@@ -16,7 +19,16 @@ class UserService {
   public async findUserById(userId: number): Promise<User> {
     const findUser: User = await this.userRepository.findOne(userId);
     if (!findUser) throw new HttpException(409, "You're not user");
-
+    return findUser;
+  }
+  public async findUserByEmail(userEmail: String): Promise<User> {
+    const findUser: User = await this.userRepository.findOne({ where: { email: userEmail } });
+    if (!findUser) throw new HttpException(409, "You're not user");
+    return findUser;
+  }
+  public async findUserByEmailPwd(userEmail: String, userPassword: String): Promise<User> {
+    const findUser: User = await this.userRepository.findOne({ where: { email: userEmail, password: userPassword } });
+    if (!findUser) throw new HttpException(409, "You're not user");
     return findUser;
   }
 
@@ -31,7 +43,7 @@ class UserService {
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     userData.password = hashedPassword;
-    const user = new UserEntity();
+    const user = new User();
     user.update(userData);
 
     let saved;
@@ -47,7 +59,7 @@ class UserService {
   public async updateUser(userId: number, userData: CreateUserDto): Promise<User[]> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: UserEntity = await this.userRepository.findOne(userId);
+    const findUser: User = await this.userRepository.findOne(userId);
     if (!findUser) throw new HttpException(409, "You're not user");
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -64,6 +76,18 @@ class UserService {
 
     await this.userRepository.delete(userId);
     return this.findAllUser();
+  }
+  public async reportUser(accuserId: number, defendantId: number, roomId: number, reportType: number) {
+    const findAccuser: User = await this.userRepository.findOne(accuserId);
+    const findDefendant: User = await this.userRepository.findOne(defendantId);
+    const findRoom: Room = await this.roomRepository.findOne(roomId);
+    if (!findAccuser || !findDefendant || !findRoom) throw new HttpException(409, 'Wrong Report');
+    const report = new Report();
+    report.accuser = findAccuser;
+    report.defendant = findDefendant;
+    report.room = findRoom;
+    report.reportType = reportType;
+    await this.reportRepository.save(report);
   }
 }
 

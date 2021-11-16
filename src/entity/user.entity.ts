@@ -1,5 +1,4 @@
 import { CreateUserDto } from '@/dtos/users.dto';
-import { User } from '@/interfaces/users.interface';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Section {
@@ -11,9 +10,12 @@ export enum Section {
 }
 
 @Entity()
-export class UserEntity implements User {
-  constructor() {}
-
+export class User {
+  constructor(userData?: CreateUserDto) {
+    if (userData) {
+      this.update(userData);
+    }
+  }
   public update(userData: CreateUserDto) {
     this.studentId = userData.studentId;
     this.phone = userData.phone;
