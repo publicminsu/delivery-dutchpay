@@ -1,16 +1,23 @@
-import { Menu } from '@/entity/menu.entity';
-import { Tip } from '@/entity/tip.entity';
-import { IsEmail, IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsEmail, IsNumber, IsObject, IsString } from 'class-validator';
 
+export class MenuInfo {
+  name: string;
+  price: number;
+}
+//isObject사용하기위해 interface에서 빼왔습니다.
+export class TipInfo {
+  largerThan: number;
+  price: number;
+}
 export class CreateRoomDto {
   @IsEmail({ allow_utf8_local_part: false })
   public userEmail: string;
   @IsString()
   public shopName: string;
-  @IsEnum(Tip)
-  public tipInfos: Tip[];
-  @IsEnum(Menu)
-  public perchaserMenus: Menu[];
+  @IsArray()
+  public tipInfos: TipInfo[];
+  @IsArray()
+  public perchaserMenus: MenuInfo[];
 }
 
 export class JoinRoomDto {
@@ -25,6 +32,6 @@ export class AddMenuDto {
   public roomId: number;
   @IsString()
   public userEmail: string;
-  @IsEnum(Menu)
-  public menus: Menu[];
+  @IsArray()
+  public menus: MenuInfo[];
 }
