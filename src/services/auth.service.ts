@@ -40,13 +40,12 @@ class AuthService {
     return { cookie, findUser };
   }
 
-  public async logout(userData: LogoutUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+  public async logout(userEmail: string): Promise<User> {
+    if (isEmpty(userEmail)) throw new HttpException(400, "You're not userData");
 
     //const findUser: User = this.users.find(user => user.email === userData.email && user.password === userData.password);
     const userService = new UserService();
-    const hashedPassword = await bcrypt.hash(userData.password, 10); //암호화한 비밀번호를 가져와서 찾기입니다
-    const findUser: User = await userService.findUserByEmailPwd(userData.email, hashedPassword);
+    const findUser: User = await userService.findUserByEmail(userEmail);
     if (findUser) throw new HttpException(409, "You're not user");
 
     return findUser;

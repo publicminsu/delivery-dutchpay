@@ -1,4 +1,6 @@
-import { IsArray, IsEmail, IsNumber, IsObject, IsString } from 'class-validator';
+import { Menu } from '@/interfaces/room.interface';
+import { Type } from 'class-transformer';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsNumber, IsObject, IsString, ValidateNested } from 'class-validator';
 
 export class MenuInfo {
   name: string;
@@ -10,14 +12,25 @@ export class TipInfo {
   price: number;
 }
 export class CreateRoomDto {
-  @IsEmail({ allow_utf8_local_part: false })
+  @IsString()
   public userEmail: string;
+
   @IsString()
   public shopName: string;
+
   @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
+  @Type(() => TipInfo)
   public tipInfos: TipInfo[];
+
   @IsArray()
-  public perchaserMenus: MenuInfo[];
+  @ArrayMinSize(1)
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
+  @Type(() => Menu)
+  public perchaserMenus: Menu[];
 }
 
 export class JoinRoomDto {
@@ -30,8 +43,11 @@ export class JoinRoomDto {
 export class AddMenuDto {
   @IsNumber()
   public roomId: number;
+
   @IsString()
   public userEmail: string;
+
   @IsArray()
-  public menus: MenuInfo[];
+  @Type(() => Menu)
+  public menus: Menu[];
 }

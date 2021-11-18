@@ -32,6 +32,7 @@ export class AuthController {
   async logOut(@Body() userData: LogoutUserDto, @Res() res: Response) {
     const logOutUserData: User = await this.authService.logout(userData);
     res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
+    res.send();
     return { data: logOutUserData, message: 'logout' };
   } //dto
 }
