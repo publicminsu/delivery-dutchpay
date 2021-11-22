@@ -1,5 +1,6 @@
 import { dbConnection } from '@/databases';
 import { AddMenuDto, CreateRoomDto, JoinRoomDto } from '@/dtos/room.dto';
+import { Category } from '@/entity/room.entity';
 import { createConnection } from 'typeorm';
 import RoomService from './rooms.service';
 
@@ -36,6 +37,7 @@ describe('roomService', () => {
           price: 4800,
         },
       ],
+      roomType: Category._Not,
     };
 
     try {

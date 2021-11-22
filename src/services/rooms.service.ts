@@ -2,7 +2,7 @@ import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { User } from '@/entity/user.entity';
 import { getRepository } from 'typeorm';
-import { Room } from '@/entity/room.entity';
+import { Category, Room } from '@/entity/room.entity';
 import { AddMenuDto, CreateRoomDto, JoinRoomDto } from '@/dtos/room.dto';
 import { Tip } from '@/entity/tip.entity';
 import { Menu } from '@/entity/menu.entity';
@@ -16,12 +16,16 @@ class RoomService {
   public participantRepository = getRepository(Participant);
 
   public async findAllRoom(): Promise<Room[]> {
-    return this.roomRepository.find();
+    return this.roomRepository.find({ isActive: true });
+  }
+  public async findRoomByCategory(category: Category): Promise<Room[]> {
+    return this.roomRepository.find({ isActive: true, roomType: category });
   }
 
   public async findRoomById(roomId: number): Promise<Room> {
     const findRoom: Room = await this.roomRepository.findOne(roomId);
     if (!findRoom) throw new HttpException(409, 'no room');
+    if (!findRoom.isActive) throw new HttpException(409, 'deactivated room');
 
     return findRoom;
   }
@@ -62,7 +66,7 @@ class RoomService {
 
     purchaserInfo.menus = menus;
     newRoom.participants = [purchaserInfo];
-
+    newRoom.roomType = roomData.roomType;
     return await this.roomRepository.save(newRoom);
   }
 
@@ -79,7 +83,11 @@ class RoomService {
     targetRoom.participants.push(participantInfo);
     return await this.roomRepository.save(targetRoom);
   }
-
+  public async endRoom(roomId: number) {
+    const targetRoom = await this.findRoomById(roomId);
+    targetRoom.isActive = false;
+    return await this.roomRepository.save(targetRoom);
+  }
   public async addMenu(addMenuData: AddMenuDto): Promise<Participant> {
     if (isEmpty(addMenuData)) throw new HttpException(400, 'invalid AddMenuDto');
 

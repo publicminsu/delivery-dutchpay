@@ -1,7 +1,7 @@
 import { CreateRoomDto } from '@/dtos/room.dto';
-import { Room } from '@/entity/room.entity';
+import { Category, Room } from '@/entity/room.entity';
 import RoomService from '@/services/rooms.service';
-import { Body, Controller, Get, Param, Post, Put } from 'routing-controllers';
+import { Body, Controller, Delete, Get, Param, Post, Put } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 
 @Controller()
@@ -11,7 +11,12 @@ export class RoomController {
   async getRooms() {
     const findAllRoomsData: Room[] = await this.roomService.findAllRoom();
     return { data: findAllRoomsData, message: 'findAll' };
-  }
+  } //카테고리 dto로 받아서 not이면 활성화된거 전부, food나 디저트면 해당하는거만 찾게끔했습니다.
+  @Get('/rooms/:Category')
+  async getRoomsByCategory(@Param('Category') category: Category) {
+    const findAllRoomsData: Room[] = await this.roomService.findRoomByCategory(category);
+    return { data: findAllRoomsData, message: 'findAll' };
+  } //카테고리 dto로 받아서 not이면 활성화된거 전부, food나 디저트면 해당하는거만 찾게끔했습니다.
   @Get('/rooms/:rid')
   @OpenAPI({ summary: 'Return find a room' })
   async joinRoom(@Param('rid') roomId: number) {
@@ -25,5 +30,11 @@ export class RoomController {
   async createRoom(@Body() roomData: CreateRoomDto) {
     const createRoomData: Room = await this.roomService.createRoom(roomData);
     return { data: createRoomData, message: 'created' };
+  }
+  @Delete('/rooms/:rid')
+  @OpenAPI({ summary: 'Deactivated room' })
+  async endRoom(@Param('rid') roomId: number) {
+    const endRoomData: Room = await this.roomService.endRoom(roomId);
+    return { data: endRoomData, message: 'deactivated' };
   }
 }
