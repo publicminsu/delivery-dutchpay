@@ -38,7 +38,8 @@ export class UsersController {
   @UseBefore(validationMiddleware(CreateUserDto, 'body', true))
   @OpenAPI({ summary: 'Update a user' })
   async updateUser(@Param('id') userId: number, @Body() userData: CreateUserDto) {
-    const updateUserData: User[] = await this.userService.updateUser(userId, userData);
+    const updateUserData: User[] = await this.userService.updateUser(userData);
+    //dto랑 userid 중복으로 입력들어가서 dto수정하거나 userid는 그냥안쓰거나 해야할거같아요.
     return { data: updateUserData, message: 'updated' };
   }
 

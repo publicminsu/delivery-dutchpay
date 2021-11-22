@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { Controller, Body, Post, UseBefore, HttpCode, Res } from 'routing-controllers';
-import { CreateUserDto, LogoutUserDto } from '@dtos/users.dto';
+import { CreateUserDto, LoginUserDto, LogoutUserDto } from '@dtos/users.dto';
 import authMiddleware from '@middlewares/auth.middleware';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import AuthService from '@services/auth.service';
@@ -19,13 +19,12 @@ export class AuthController {
   }
 
   @Post('/login')
-  @UseBefore(validationMiddleware(CreateUserDto, 'body'))
-  async logIn(@Res() res: Response, @Body() userData: CreateUserDto) {
+  @UseBefore(validationMiddleware(LoginUserDto, 'body'))
+  async logIn(@Body() userData: LoginUserDto, @Res() res: Response) {
     const { cookie, findUser } = await this.authService.login(userData);
-
     res.setHeader('Set-Cookie', [cookie]);
     return { data: findUser, message: 'login' };
-  }
+  } //dto
 
   @Post('/logout')
   @UseBefore(authMiddleware)
@@ -34,5 +33,5 @@ export class AuthController {
     res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
     res.send();
     return { data: logOutUserData, message: 'logout' };
-  } //dto
+  }
 }

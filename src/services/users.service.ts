@@ -17,17 +17,8 @@ class UserService {
   }
 
   public async findUserById(userId: number): Promise<User> {
+    //스튜던트 아이디? 데이터베이스 아이디?
     const findUser: User = await this.userRepository.findOne(userId);
-    if (!findUser) throw new HttpException(409, "You're not user");
-    return findUser;
-  }
-  public async findUserByEmail(userEmail: String): Promise<User> {
-    const findUser: User = await this.userRepository.findOne({ where: { email: userEmail } });
-    if (!findUser) throw new HttpException(409, "You're not user");
-    return findUser;
-  }
-  public async findUserByEmailPwd(userEmail: String, userPassword: String): Promise<User> {
-    const findUser: User = await this.userRepository.findOne({ where: { email: userEmail, password: userPassword } });
     if (!findUser) throw new HttpException(409, "You're not user");
     return findUser;
   }
@@ -56,10 +47,10 @@ class UserService {
     return saved;
   }
 
-  public async updateUser(userId: number, userData: CreateUserDto): Promise<User[]> {
+  public async updateUser(userData: CreateUserDto): Promise<User[]> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.userRepository.findOne(userId);
+    const findUser: User = await this.userRepository.findOne(userData.studentId);
     if (!findUser) throw new HttpException(409, "You're not user");
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);

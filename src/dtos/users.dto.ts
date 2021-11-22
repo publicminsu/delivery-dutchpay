@@ -18,7 +18,15 @@ export class CreateUserDto {
   public email: string;
 }
 export class LogoutUserDto {
+  @Contains('@hknu.ac.kr')
+  @IsEmail({ allow_utf8_local_part: false })
+  public email: string;
   @IsString()
+  public password: string;
+}
+export class LoginUserDto {
+  @Contains('@hknu.ac.kr')
+  @IsEmail({ allow_utf8_local_part: false })
   public email: string;
   @IsString()
   public password: string;
