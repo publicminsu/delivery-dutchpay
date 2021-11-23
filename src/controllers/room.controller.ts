@@ -11,7 +11,7 @@ export class RoomController {
   async getRooms() {
     const findAllRoomsData: Room[] = await this.roomService.findAllRoom();
     return { data: findAllRoomsData, message: 'findAll' };
-  } //카테고리 dto로 받아서 not이면 활성화된거 전부, food나 디저트면 해당하는거만 찾게끔했습니다.
+  }
   @Get('/rooms/:Category')
   async getRoomsByCategory(@Param('Category') category: Category) {
     const findAllRoomsData: Room[] = await this.roomService.findRoomByCategory(category);

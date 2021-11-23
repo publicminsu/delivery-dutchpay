@@ -17,8 +17,8 @@ class UserService {
   }
 
   public async findUserById(userId: number): Promise<User> {
-    //스튜던트 아이디? 데이터베이스 아이디?
-    const findUser: User = await this.userRepository.findOne(userId);
+    //스튜던트 아이디
+    const findUser: User = await this.userRepository.findOne({ studentId: userId });
     if (!findUser) throw new HttpException(409, "You're not user");
     return findUser;
   }
@@ -26,11 +26,14 @@ class UserService {
   public async createUser(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const emailExist: User = await this.userRepository.findOne(userData.email);
+    const emailExist: User = await this.userRepository.findOne({ email: userData.email });
     if (emailExist) throw new HttpException(409, `Your email ${userData.email} already exists`);
 
-    const studentIdExist: User = await this.userRepository.findOne(userData.studentId);
+    const studentIdExist: User = await this.userRepository.findOne({ studentId: userData.studentId });
     if (studentIdExist) throw new HttpException(409, `Your studentId ${userData.studentId} already exists`);
+
+    const phoneExist: User = await this.userRepository.findOne({ phone: userData.phone });
+    if (phoneExist) throw new HttpException(409, `Your studentId ${userData.phone} already exists`);
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     userData.password = hashedPassword;
@@ -50,7 +53,7 @@ class UserService {
   public async updateUser(userData: CreateUserDto): Promise<User[]> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.userRepository.findOne(userData.studentId);
+    const findUser: User = await this.userRepository.findOne({ studentId: userData.studentId });
     if (!findUser) throw new HttpException(409, "You're not user");
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -62,15 +65,15 @@ class UserService {
   }
 
   public async deleteUser(userId: number): Promise<User[]> {
-    const findUser: User = await this.userRepository.findOne(userId);
+    const findUser: User = await this.userRepository.findOne({ studentId: userId });
     if (!findUser) throw new HttpException(409, "You're not user");
 
-    await this.userRepository.delete(userId);
+    await this.userRepository.delete({ studentId: userId });
     return this.findAllUser();
   }
   public async reportUser(accuserId: number, defendantId: number, roomId: number, reportType: number) {
-    const findAccuser: User = await this.userRepository.findOne(accuserId);
-    const findDefendant: User = await this.userRepository.findOne(defendantId);
+    const findAccuser: User = await this.userRepository.findOne({ studentId: accuserId });
+    const findDefendant: User = await this.userRepository.findOne({ studentId: defendantId });
     const findRoom: Room = await this.roomRepository.findOne(roomId);
     if (!findAccuser || !findDefendant || !findRoom) throw new HttpException(409, 'Wrong Report');
     const report = new Report();
