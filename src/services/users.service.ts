@@ -33,7 +33,7 @@ class UserService {
     if (studentIdExist) throw new HttpException(409, `Your studentId ${userData.studentId} already exists`);
 
     const phoneExist: User = await this.userRepository.findOne({ phone: userData.phone });
-    if (phoneExist) throw new HttpException(409, `Your studentId ${userData.phone} already exists`);
+    if (phoneExist) throw new HttpException(409, `Your phone ${userData.phone} already exists`);
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     userData.password = hashedPassword;
