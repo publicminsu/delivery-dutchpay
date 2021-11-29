@@ -48,4 +48,7 @@ export class Room {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ nullable: true })
+  imagePath: string;
 }

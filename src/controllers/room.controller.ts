@@ -1,7 +1,7 @@
-import { CreateRoomDto } from '@/dtos/room.dto';
+import { CreateRoomDto, fileUploadOptions } from '@/dtos/room.dto';
 import { Category, Room } from '@/entity/room.entity';
 import RoomService from '@/services/rooms.service';
-import { Body, Controller, Delete, Get, Param, Post, Put } from 'routing-controllers';
+import { Body, Controller, Delete, Get, Param, Post, Render, UploadedFile } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 
 @Controller()
@@ -22,8 +22,7 @@ export class RoomController {
   async joinRoom(@Param('rid') roomId: number) {
     const findOneRoomData: Room = await this.roomService.findRoomById(roomId);
     return { data: findOneRoomData, message: 'findOne' };
-  } //생각해보니 방에 들어가면 상대방 유저들한테도 socketio 이벤트를 보내야할것 같습니다.
-  //메뉴,사진은 socketio
+  }
   @Post('/rooms')
   // @UseBefore(validationMiddleware(CreateRoomDto, 'body'))
   @OpenAPI({ summary: 'Create a new room' })
@@ -36,5 +35,17 @@ export class RoomController {
   async endRoom(@Param('rid') roomId: number) {
     const endRoomData: Room = await this.roomService.endRoom(roomId);
     return { data: endRoomData, message: 'deactivated' };
+  }
+  @Post('/rooms/:rid/photo')
+  @OpenAPI({ summary: 'photo menu upload' })
+  async createPurchaseMenu(@UploadedFile('file', { options: fileUploadOptions }) file: Express.Multer.File, @Param('rid') roomId: number) {
+    const createPurchaseRoomData: Room = await this.roomService.createPurchaseMenu(file, roomId);
+    return { data: createPurchaseRoomData, message: 'createed Purchase' };
+  }
+  @Get('/rooms/:rid/photo')
+  @OpenAPI({ summary: 'photo menu view' })
+  async getPurchaseMenu(@Param('rid') roomId: number) {
+    const getPurchasePath: string = await this.roomService.getPurchaseMenu(roomId);
+    return { data: getPurchasePath, message: 'get Purchase' };
   }
 }

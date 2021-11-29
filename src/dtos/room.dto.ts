@@ -2,6 +2,7 @@ import { Category } from '@/entity/room.entity';
 import { Menu } from '@/interfaces/room.interface';
 import { Type } from 'class-transformer';
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsEnum, IsNumber, IsString, ValidateNested } from 'class-validator';
+import multer from 'multer';
 
 export class MenuInfo {
   name: string;
@@ -55,3 +56,13 @@ export class AddMenuDto {
   @Type(() => Menu)
   public menus: Menu[];
 }
+export const fileUploadOptions = {
+  storage: multer.diskStorage({
+    destination: (req: any, file: any, cb: any) => {
+      cb(null, 'uploads/');
+    },
+    filename: (req: any, file: any, cb: any) => {
+      cb(null, file.originalname + '-' + Date.now());
+    },
+  }),
+};

@@ -106,6 +106,16 @@ class RoomService {
 
     return await this.participantRepository.save(participantInfo);
   }
+  public async createPurchaseMenu(file: Express.Multer.File, roomId: number): Promise<Room> {
+    const targetRoom = await this.findRoomById(roomId);
+    targetRoom.imagePath = file.path;
+    return await this.roomRepository.save(targetRoom);
+  }
+  public async getPurchaseMenu(roomId: number): Promise<string> {
+    const targetRoom = await this.findRoomById(roomId);
+    const imagePath = targetRoom.imagePath;
+    return imagePath;
+  }
 }
 
 export default RoomService;
