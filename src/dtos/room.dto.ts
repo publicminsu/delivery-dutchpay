@@ -63,7 +63,7 @@ export const fileUploadOptions = {
       cb(null, 'uploads/');
     },
     filename: (req: any, file: any, cb: any) => {
-      cb(null, Date.now() + '-' + file.originalname);
+      cb(null, req.params.rid + '-' + Date.now() + '-' + file.originalname);
     },
   }),
   fileFilter: (req: any, file: any, cb: any) => {
