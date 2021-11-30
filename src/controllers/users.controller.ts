@@ -18,9 +18,9 @@ export class UsersController {
     return { data: findAllUsersData, message: 'findAll' };
   }
 
-  @Get('/users/:id')
+  @Get('/users/:uid')
   @OpenAPI({ summary: 'Return find a user' })
-  async getUserById(@Param('id') userId: number) {
+  async getUserById(@Param('uid') userId: number) {
     const findOneUserData: User = await this.userService.findUserById(userId);
     return { data: findOneUserData, message: 'findOne' };
   }
@@ -34,18 +34,18 @@ export class UsersController {
     return { data: createUserData, message: 'created' };
   }
 
-  @Put('/users/:id')
+  @Put('/users/:uid')
   @UseBefore(validationMiddleware(CreateUserDto, 'body', true))
   @OpenAPI({ summary: 'Update a user' })
-  async updateUser(@Param('id') userId: number, @Body() userData: CreateUserDto) {
+  async updateUser(@Param('uid') userId: number, @Body() userData: CreateUserDto) {
     const updateUserData: User[] = await this.userService.updateUser(userData);
     //dto랑 userid 중복으로 입력들어가서 dto수정하거나 userid는 그냥안쓰거나 해야할거같아요.
     return { data: updateUserData, message: 'updated' };
   }
 
-  @Delete('/users/:id')
+  @Delete('/users/:uid')
   @OpenAPI({ summary: 'Delete a user' })
-  async deleteUser(@Param('id') userId: number) {
+  async deleteUser(@Param('uid') userId: number) {
     const deleteUserData: User[] = await this.userService.deleteUser(userId);
     return { data: deleteUserData, message: 'deleted' };
   }
