@@ -56,13 +56,23 @@ export class AddMenuDto {
   @Type(() => Menu)
   public menus: Menu[];
 }
+
 export const fileUploadOptions = {
   storage: multer.diskStorage({
     destination: (req: any, file: any, cb: any) => {
       cb(null, 'uploads/');
     },
     filename: (req: any, file: any, cb: any) => {
-      cb(null, file.originalname + '-' + Date.now());
+      cb(null, Date.now() + '-' + file.originalname);
     },
   }),
+  fileFilter: (req: any, file: any, cb: any) => {
+    const typeArray = file.mimetype.split('/');
+    const fileType = typeArray[1];
+    if (fileType == 'jpg' || fileType == 'jpeg' || fileType == 'png') {
+      cb(null, true);
+    } else {
+      return cb({ message: '*.jpg, *.jpeg, *.png 파일만 업로드가 가능합니다.' }, false);
+    }
+  },
 };

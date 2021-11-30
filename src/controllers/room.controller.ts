@@ -1,7 +1,8 @@
 import { CreateRoomDto, fileUploadOptions } from '@/dtos/room.dto';
 import { Category, Room } from '@/entity/room.entity';
 import RoomService from '@/services/rooms.service';
-import { Body, Controller, Delete, Get, Param, Post, Render, UploadedFile } from 'routing-controllers';
+import { Response } from 'express';
+import { Body, Controller, Delete, Get, Param, Post, Res, UploadedFile } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 
 @Controller()
@@ -47,5 +48,24 @@ export class RoomController {
   async getPurchaseMenu(@Param('rid') roomId: number) {
     const getPurchasePath: string = await this.roomService.getPurchaseMenu(roomId);
     return { data: getPurchasePath, message: 'get Purchase' };
+  }
+  @Get('/test')
+  getAllUsers(@Res() response: Response) {
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>practice</title>
+</head>
+<body>
+  <form action='/rooms/7/photo' method='post' enctype="multipart/form-data">
+    <input type="file" id="file" name="file">
+    <input type="submit">
+  </form>
+</body>
+</html>
+`;
+    return response.send(html);
   }
 }
