@@ -114,6 +114,7 @@ class RoomService {
   public async getPurchaseMenu(roomId: number): Promise<string> {
     const targetRoom = await this.findRoomById(roomId);
     const imagePath = targetRoom.imagePath;
+    if (!imagePath) throw new HttpException(400, 'invalid image');
     return imagePath;
   }
 }
