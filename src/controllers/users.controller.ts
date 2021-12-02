@@ -1,10 +1,11 @@
 import { Controller, Param, Body, Get, Post, Put, Delete, HttpCode, UseBefore, Req } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { CreateUserDto, reportUserDto } from '@dtos/users.dto';
+import { CreateUserDto, reportUserDto, RequestWithUser } from '@dtos/users.dto';
 import userService from '@services/users.service';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import RoomService from '@/services/rooms.service';
 import { User } from '@/entity/user.entity';
+import authMiddleware from '@/middlewares/auth.middleware';
 
 @Controller()
 export class UsersController {
@@ -39,7 +40,6 @@ export class UsersController {
   @OpenAPI({ summary: 'Update a user' })
   async updateUser(@Param('uid') userId: number, @Body() userData: CreateUserDto) {
     const updateUserData: User[] = await this.userService.updateUser(userData);
-    //dto랑 userid 중복으로 입력들어가서 dto수정하거나 userid는 그냥안쓰거나 해야할거같아요.
     return { data: updateUserData, message: 'updated' };
   }
 
@@ -50,9 +50,10 @@ export class UsersController {
     return { data: deleteUserData, message: 'deleted' };
   }
   @Post('/rooms/:rid/report/:uid')
+  @UseBefore(authMiddleware)
   @OpenAPI({ summary: 'report user' })
-  async reportUser(@Body() userData: reportUserDto, @Param('rid') roomId: number, @Param('uid') userId: number) {
-    await this.userService.reportUser(userData.accuserId, userId, roomId, userData.reportType);
+  async reportUser(@Req() req: RequestWithUser, @Body() userData: reportUserDto, @Param('rid') roomId: number, @Param('uid') userId: number) {
+    await this.userService.reportUser(req.user.id, userId, roomId, userData.reportType);
     return { message: 'reported' };
     //dto
   }

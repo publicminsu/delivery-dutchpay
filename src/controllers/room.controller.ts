@@ -1,8 +1,11 @@
-import { CreateRoomDto, fileUploadOptions } from '@/dtos/room.dto';
+import { AddMenuDto, CreateRoomDto, fileUploadOptions } from '@/dtos/room.dto';
+import { RequestWithUser } from '@/dtos/users.dto';
+import { Participant } from '@/entity/participant.entity';
 import { Category, Room } from '@/entity/room.entity';
+import authMiddleware from '@/middlewares/auth.middleware';
 import RoomService from '@/services/rooms.service';
 import { Response } from 'express';
-import { Body, Controller, Delete, Get, Param, Post, Res, UploadedFile } from 'routing-controllers';
+import { Body, Controller, Delete, Get, Param, Post, Req, Res, UploadedFile, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 
 @Controller()
@@ -19,16 +22,18 @@ export class RoomController {
     return { data: findAllRoomsData, message: 'findAll' };
   } //카테고리 dto로 받아서 not이면 활성화된거 전부, food나 디저트면 해당하는거만 찾게끔했습니다.
   @Get('/rooms/:rid')
+  @UseBefore(authMiddleware)
   @OpenAPI({ summary: 'Return find a room' })
-  async joinRoom(@Param('rid') roomId: number) {
-    const findOneRoomData: Room = await this.roomService.findRoomById(roomId);
+  async joinRoom(@Req() req: RequestWithUser, @Param('rid') roomId: number) {
+    const findOneRoomData: Room = await this.roomService.joinRoom(req.user, roomId);
     return { data: findOneRoomData, message: 'findOne' };
   }
   @Post('/rooms')
   // @UseBefore(validationMiddleware(CreateRoomDto, 'body'))
+  @UseBefore(authMiddleware)
   @OpenAPI({ summary: 'Create a new room' })
-  async createRoom(@Body() roomData: CreateRoomDto) {
-    const createRoomData: Room = await this.roomService.createRoom(roomData);
+  async createRoom(@Req() req: RequestWithUser, @Body() roomData: CreateRoomDto) {
+    const createRoomData: Room = await this.roomService.createRoom(req.user, roomData);
     return { data: createRoomData, message: 'created' };
   }
   @Delete('/rooms/:rid')
@@ -49,6 +54,14 @@ export class RoomController {
     const getPurchasePath: string = await this.roomService.getPurchaseMenu(roomId);
     return { data: getPurchasePath, message: 'get Purchase' };
   }
+  @Post('/rooms/:rid/menu')
+  @UseBefore(authMiddleware)
+  @OpenAPI({ summary: 'add Menu' })
+  async addMenu(@Req() req: RequestWithUser, @Param('rid') roomId: number, @Body() roomData: AddMenuDto) {
+    const addMenuParticipantData: Participant = await this.roomService.addMenu(req.user, roomId, roomData);
+    return { data: addMenuParticipantData, message: 'add Menu' };
+  }
+
   @Get('/test')
   getAllUsers(@Res() response: Response) {
     const html = `

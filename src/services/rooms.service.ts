@@ -3,7 +3,7 @@ import { isEmpty } from '@utils/util';
 import { User } from '@/entity/user.entity';
 import { getRepository } from 'typeorm';
 import { Category, Room } from '@/entity/room.entity';
-import { AddMenuDto, CreateRoomDto, JoinRoomDto } from '@/dtos/room.dto';
+import { AddMenuDto, CreateRoomDto, DeleteMenuDto } from '@/dtos/room.dto';
 import { Tip } from '@/entity/tip.entity';
 import { Menu } from '@/entity/menu.entity';
 import { Participant } from '@/entity/participant.entity';
@@ -30,10 +30,11 @@ class RoomService {
     return findRoom;
   }
 
-  public async createRoom(roomData: CreateRoomDto): Promise<Room> {
+  public async createRoom(user: User, roomData: CreateRoomDto): Promise<Room> {
     if (isEmpty(roomData)) throw new HttpException(400, 'invalid CreateRoomDto');
 
-    const purchaser = await this.userRepository.findOne({ email: roomData.userEmail });
+    const findUser: User = await this.userRepository.findOne({ email: user.email });
+    const purchaser = findUser;
 
     const newRoom = new Room();
     newRoom.date = new Date();
@@ -70,11 +71,10 @@ class RoomService {
     return await this.roomRepository.save(newRoom);
   }
 
-  public async joinRoom(joinData: JoinRoomDto): Promise<Room> {
-    if (isEmpty(joinData)) throw new HttpException(400, 'invalid JoinRoomDto');
-
-    const joinUser = await this.userRepository.findOne({ email: joinData.userEmail });
-    const targetRoom = await this.findRoomById(joinData.roomId);
+  public async joinRoom(user: User, roomId: number): Promise<Room> {
+    const joinUser = await this.userRepository.findOne({ email: user.email });
+    const targetRoom = await this.findRoomById(roomId);
+    if (!targetRoom.isActive) throw new HttpException(400, 'Deactivated Room');
 
     const participantInfo = new Participant();
     participantInfo.room = targetRoom;
@@ -88,11 +88,11 @@ class RoomService {
     targetRoom.isActive = false;
     return await this.roomRepository.save(targetRoom);
   }
-  public async addMenu(addMenuData: AddMenuDto): Promise<Participant> {
+  public async addMenu(user: User, roomId: number, addMenuData: AddMenuDto): Promise<Participant> {
     if (isEmpty(addMenuData)) throw new HttpException(400, 'invalid AddMenuDto');
 
-    const joinUser = await this.userRepository.findOne({ email: addMenuData.userEmail });
-    const targetRoom = await this.findRoomById(addMenuData.roomId);
+    const joinUser = await this.userRepository.findOne({ email: user.email });
+    const targetRoom = await this.findRoomById(roomId);
 
     const participantInfo = await this.participantRepository.findOne({ room: targetRoom, user: joinUser });
 
@@ -106,6 +106,9 @@ class RoomService {
 
     return await this.participantRepository.save(participantInfo);
   }
+  public async deleteMenu(deleteMenuData: DeleteMenuDto) {
+    if (isEmpty(deleteMenuData)) throw new HttpException(400, 'invalid DeleteMenuDto');
+  } //만들어야함
   public async createPurchaseMenu(file: Express.Multer.File, roomId: number): Promise<Room> {
     const targetRoom = await this.findRoomById(roomId);
     targetRoom.imagePath = file.path;

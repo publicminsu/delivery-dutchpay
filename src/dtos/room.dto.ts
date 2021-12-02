@@ -8,17 +8,11 @@ export class MenuInfo {
   name: string;
   price: number;
 }
-//isObject사용하기위해 interface에서 빼왔습니다.
-//카테고리
-//사진넣기
 export class TipInfo {
   largerThan: number;
   price: number;
 }
 export class CreateRoomDto {
-  @IsString()
-  public userEmail: string;
-
   @IsString()
   public shopName: string;
 
@@ -39,24 +33,18 @@ export class CreateRoomDto {
   public roomType: string;
 }
 
-export class JoinRoomDto {
-  @IsNumber()
-  public roomId: number;
-  @IsString()
-  public userEmail: string;
-}
 export class AddMenuDto {
-  @IsNumber()
-  public roomId: number;
-
-  @IsString()
-  public userEmail: string;
-
   @IsArray()
   @Type(() => Menu)
   public menus: Menu[];
 }
+export class DeleteMenuDto {
+  @IsNumber()
+  public roomId: number;
 
+  @IsString()
+  public userEmail: string;
+}
 export const fileUploadOptions = {
   storage: multer.diskStorage({
     destination: (req: any, file: any, cb: any) => {

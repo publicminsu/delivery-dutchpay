@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import config from 'config';
 import jwt from 'jsonwebtoken';
-import { CreateUserDto, LoginUserDto, LogoutUserDto } from '@dtos/users.dto';
+import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { isEmpty } from '@utils/util';
@@ -15,9 +15,6 @@ class AuthService {
 
     const findUser: User = await this.userRepository.findOne({ email: userData.email });
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
-
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    userData.password = hashedPassword; //암호화를 사용하는거 같아서 교체했습니다.
     const createUserData: User = new User(userData);
     return createUserData;
   }
@@ -37,17 +34,8 @@ class AuthService {
     return { cookie, findUser };
   }
 
-  public async logout(userData: LogoutUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
-    const findUser: User = await this.userRepository.findOne({ email: userData.email });
-    if (!findUser) throw new HttpException(409, "You're not user");
-    const isPasswordMatching: boolean = await bcrypt.compare(userData.password, findUser.password);
-    if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
-    return findUser;
-  }
-
   public createToken(user: User): TokenData {
-    const dataStoredInToken: DataStoredInToken = { id: user.id };
+    const dataStoredInToken: DataStoredInToken = { id: user.email };
     const secretKey: string = config.get('secretKey');
     const expiresIn: number = 60 * 60;
 
