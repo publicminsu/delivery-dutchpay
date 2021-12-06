@@ -35,15 +35,11 @@ export class CreateRoomDto {
 
 export class AddMenuDto {
   @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
   @Type(() => Menu)
   public menus: Menu[];
-}
-export class DeleteMenuDto {
-  @IsNumber()
-  public roomId: number;
-
-  @IsString()
-  public userEmail: string;
 }
 export const fileUploadOptions = {
   storage: multer.diskStorage({
