@@ -16,7 +16,7 @@ export class RoomController {
     const findAllRoomsData: Room[] = await this.roomService.findAllRoom();
     return { data: findAllRoomsData, message: 'findAll' };
   }
-  @Get('/rooms/:Category')
+  @Get('/rooms/:Category/Category')
   async getRoomsByCategory(@Param('Category') category: Category) {
     const findAllRoomsData: Room[] = await this.roomService.findRoomByCategory(category);
     return { data: findAllRoomsData, message: 'findAllCategory' };
@@ -25,8 +25,14 @@ export class RoomController {
   @UseBefore(authMiddleware)
   @OpenAPI({ summary: 'Join room' })
   async joinRoom(@Req() req: RequestWithUser, @Param('rid') roomId: number) {
-    const findOneRoomData: Room = await this.roomService.joinRoom(req.user, roomId);
-    return { data: findOneRoomData, message: 'JoinRoom' };
+    const joinRoomData: Room = await this.roomService.joinRoom(req.user, roomId);
+    return { data: joinRoomData, message: 'JoinRoom' };
+  }
+  @Get('/rooms/:rid')
+  @OpenAPI({ summary: 'find room' })
+  async findRoom(@Param('rid') roomId: number) {
+    const findOneRoomData: Room = await this.roomService.findRoomById(roomId);
+    return { data: findOneRoomData, message: 'findRoom' };
   }
   @Put('/rooms/:rid/:uid')
   @UseBefore(authMiddleware)
