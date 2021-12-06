@@ -1,4 +1,4 @@
-import { AddMenuDto, CreateRoomDto, fileUploadOptions } from '@/dtos/room.dto';
+import { AddMenuDto, AgreementDto, CreateRoomDto, fileUploadOptions } from '@/dtos/room.dto';
 import { RequestWithUser } from '@/dtos/users.dto';
 import { Participant } from '@/entity/participant.entity';
 import { Category, Room } from '@/entity/room.entity';
@@ -81,6 +81,20 @@ export class RoomController {
   async deleteMenu(@Req() req: RequestWithUser, @Param('rid') roomId: number, @Param('mid') menuId: number) {
     const deleteMenuParticipantData: Participant = await this.roomService.deleteMenu(req.user, roomId, menuId);
     return { data: deleteMenuParticipantData, message: 'add Menu' };
+  }
+  @Post('/rooms/:rid/agreement')
+  @UseBefore(authMiddleware)
+  @OpenAPI({ summary: 'agreement selected' })
+  async selectedAgreement(@Req() req: RequestWithUser, @Param('rid') roomId: number, @Body() roomData: AgreementDto) {
+    const selectedParticipantData: Participant = await this.roomService.selectedAgreement(req.user, roomId, roomData);
+    return { data: selectedParticipantData, message: 'selected Agreement' };
+  }
+  @Get('/rooms/:rid/agreement') //put은 오류가 뜹니다.
+  @OpenAPI({ summary: 'agreement init' })
+  async initAgreement(@Param('rid') roomId: number) {
+    console.log(roomId);
+    const initAgreementRoomData: Room = await this.roomService.initAgreement(roomId);
+    return { data: initAgreementRoomData, message: 'init Agreement' };
   }
 
   @Get('/test')

@@ -1,7 +1,7 @@
 import { Category } from '@/entity/room.entity';
 import { Menu } from '@/interfaces/room.interface';
 import { Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsEnum, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsEnum, IsNumber, IsString, ValidateNested } from 'class-validator';
 import multer from 'multer';
 
 export class MenuInfo {
@@ -40,6 +40,10 @@ export class AddMenuDto {
   @ValidateNested({ each: true })
   @Type(() => Menu)
   public menus: Menu[];
+}
+export class AgreementDto {
+  @IsBoolean()
+  public bool: boolean;
 }
 export const fileUploadOptions = {
   storage: multer.diskStorage({

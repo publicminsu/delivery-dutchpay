@@ -3,10 +3,10 @@ import { isEmpty } from '@utils/util';
 import { User } from '@/entity/user.entity';
 import { getRepository } from 'typeorm';
 import { Category, Room } from '@/entity/room.entity';
-import { AddMenuDto, CreateRoomDto } from '@/dtos/room.dto';
+import { AddMenuDto, AgreementDto, CreateRoomDto } from '@/dtos/room.dto';
 import { Tip } from '@/entity/tip.entity';
 import { Menu } from '@/entity/menu.entity';
-import { Participant } from '@/entity/participant.entity';
+import { agreement, Participant } from '@/entity/participant.entity';
 
 class RoomService {
   public userRepository = getRepository(User);
@@ -103,9 +103,9 @@ class RoomService {
   public async leaveRoom(user: User, roomId: number): Promise<Room> {
     const findUser = await this.userRepository.findOne({ email: user.email });
     const targetRoom = await this.findRoomById(roomId);
+    if (!targetRoom) throw new HttpException(409, 'no Room');
     if (!targetRoom.isActive) throw new HttpException(400, 'Deactivated Room');
     if (targetRoom.purchaser.id === findUser.id) throw new HttpException(400, 'Give master to another user');
-    const participantInfo = await this.participantRepository.findOne({ room: targetRoom, user: findUser });
     //메뉴 삭제는 차후에 생각. 필요한지?
     for (let i = 0; i < targetRoom.participants.length; i++) {
       if (targetRoom.participants[i].user.id === findUser.id) {
@@ -128,6 +128,7 @@ class RoomService {
     const targetRoom = await this.findRoomById(roomId);
 
     const participantInfo = await this.participantRepository.findOne({ room: targetRoom, user: joinUser });
+    if (!participantInfo) throw new HttpException(409, 'no participant');
 
     for (const menuInfo of addMenuData.menus) {
       let menu = new Menu();
@@ -144,6 +145,7 @@ class RoomService {
     const joinUser = await this.userRepository.findOne({ email: user.email });
     const targetRoom = await this.findRoomById(roomId);
     const participantInfo = await this.participantRepository.findOne({ room: targetRoom, user: joinUser });
+    if (!participantInfo) throw new HttpException(409, 'no participant');
     const menuData = await this.menuRepository.findOne(menuId);
     for (let i = 0; i < participantInfo.menus.length; i++) {
       if (participantInfo.menus[i].id === menuData.id) {
@@ -164,6 +166,24 @@ class RoomService {
     const imagePath = targetRoom.imagePath;
     if (!imagePath) throw new HttpException(400, 'invalid image');
     return imagePath;
+  }
+  public async selectedAgreement(user: User, roomId: number, roomData: AgreementDto): Promise<Participant> {
+    if (isEmpty(roomData)) throw new HttpException(400, 'invalid AgreementDto');
+    const joinUser = await this.userRepository.findOne({ email: user.email });
+    const targetRoom = await this.findRoomById(roomId);
+    const participantInfo = await this.participantRepository.findOne({ room: targetRoom, user: joinUser });
+    if (!participantInfo) throw new HttpException(409, 'no participant');
+    if (roomData.bool) participantInfo.agreement = agreement.True;
+    else participantInfo.agreement = agreement.False;
+    return await this.participantRepository.save(participantInfo);
+  }
+  public async initAgreement(roomId: number): Promise<Room> {
+    const targetRoom = await this.findRoomById(roomId);
+    if (!targetRoom) throw new HttpException(409, 'no Room');
+    for (let i = 0; i < targetRoom.participants.length; i++) {
+      targetRoom.participants[i].agreement = agreement._Not;
+    }
+    return await this.roomRepository.save(targetRoom);
   }
 }
 
