@@ -22,7 +22,7 @@ export class AuthController {
   @UseBefore(validationMiddleware(LoginUserDto, 'body'))
   async logIn(@Body() userData: LoginUserDto, @Res() res: Response) {
     const { cookie, findUser } = await this.authService.login(userData);
-    res.setHeader('Set-Cookie', [cookie]);
+    //res.setHeader('Set-Cookie', [cookie]);
     return { data: cookie, message: 'login' };
   } //dto
 
