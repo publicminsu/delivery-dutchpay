@@ -23,7 +23,7 @@ export class AuthController {
   async logIn(@Body() userData: LoginUserDto, @Res() res: Response) {
     const { cookie, findUser } = await this.authService.login(userData);
     res.setHeader('Set-Cookie', [cookie]);
-    return { data: findUser, message: 'login' };
+    return { data: cookie, message: 'login' };
   } //dto
 
   @Post('/logout')
