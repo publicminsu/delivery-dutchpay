@@ -1,37 +1,31 @@
 import bcrypt from 'bcrypt';
 import config from 'config';
 import jwt from 'jsonwebtoken';
-import { CreateUserDto, LogoutUserDto } from '@dtos/users.dto';
+import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { isEmpty } from '@utils/util';
 import { getRepository } from 'typeorm';
 import { User } from '@/entity/user.entity';
-import UserService from './users.service';
-
 class AuthService {
   public userRepository = getRepository(User);
 
   public async signup(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.userRepository.findOne(userData.email);
+    const findUser: User = await this.userRepository.findOne({ email: userData.email });
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
-
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    userData.password = hashedPassword; //암호화를 사용하는거 같아서 교체했습니다.
     const createUserData: User = new User(userData);
     return createUserData;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: LoginUserDto): Promise<{ cookie: string; findUser: User }> {
+    //dto를 login전용으로 이메일, 비밀번호만 입력하게 했습니다.
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
-    const userService = new UserService();
-    const findUser: User = await userService.findUserByEmail(userData.email);
+    const findUser: User = await this.userRepository.findOne({ email: userData.email });
     if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
-    const hashedPassword = await bcrypt.hash(userData.password, 10); //암호화한 비밀번호를 비교해야하는거 같아서
-    //추가했습니다. 틀린지는 모르겠습니다.
-    const isPasswordMatching: boolean = await bcrypt.compare(hashedPassword, findUser.password);
+    //const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const isPasswordMatching: boolean = await bcrypt.compare(userData.password, findUser.password);
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
 
     const tokenData = this.createToken(findUser);
@@ -40,19 +34,8 @@ class AuthService {
     return { cookie, findUser };
   }
 
-  public async logout(logoutUserDto: LogoutUserDto): Promise<User> {
-    if (isEmpty(logoutUserDto)) throw new HttpException(400, "You're not userData");
-
-    //const findUser: User = this.users.find(user => user.email === userData.email && user.password === userData.password);
-    const userService = new UserService();
-    const findUser: User = await userService.findUserByEmail(logoutUserDto.email);
-    if (findUser) throw new HttpException(409, "You're not user");
-
-    return findUser;
-  }
-
   public createToken(user: User): TokenData {
-    const dataStoredInToken: DataStoredInToken = { id: user.id };
+    const dataStoredInToken: DataStoredInToken = { id: user.email };
     const secretKey: string = config.get('secretKey');
     const expiresIn: number = 60 * 60;
 

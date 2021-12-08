@@ -1,10 +1,11 @@
 import { Controller, Param, Body, Get, Post, Put, Delete, HttpCode, UseBefore, Req } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { CreateUserDto, reportUserDto } from '@dtos/users.dto';
+import { CreateUserDto, reportUserDto, RequestWithUser } from '@dtos/users.dto';
 import userService from '@services/users.service';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import RoomService from '@/services/rooms.service';
 import { User } from '@/entity/user.entity';
+import authMiddleware from '@/middlewares/auth.middleware';
 
 @Controller()
 export class UsersController {
@@ -18,9 +19,9 @@ export class UsersController {
     return { data: findAllUsersData, message: 'findAll' };
   }
 
-  @Get('/users/:id')
+  @Get('/users/:uid')
   @OpenAPI({ summary: 'Return find a user' })
-  async getUserById(@Param('id') userId: number) {
+  async getUserById(@Param('uid') userId: number) {
     const findOneUserData: User = await this.userService.findUserById(userId);
     return { data: findOneUserData, message: 'findOne' };
   }
@@ -34,24 +35,25 @@ export class UsersController {
     return { data: createUserData, message: 'created' };
   }
 
-  @Put('/users/:id')
+  @Put('/users/:uid')
   @UseBefore(validationMiddleware(CreateUserDto, 'body', true))
   @OpenAPI({ summary: 'Update a user' })
-  async updateUser(@Param('id') userId: number, @Body() userData: CreateUserDto) {
-    const updateUserData: User[] = await this.userService.updateUser(userId, userData);
+  async updateUser(@Param('uid') userId: number, @Body() userData: CreateUserDto) {
+    const updateUserData: User[] = await this.userService.updateUser(userData);
     return { data: updateUserData, message: 'updated' };
   }
 
-  @Delete('/users/:id')
+  @Delete('/users/:uid')
   @OpenAPI({ summary: 'Delete a user' })
-  async deleteUser(@Param('id') userId: number) {
+  async deleteUser(@Param('uid') userId: number) {
     const deleteUserData: User[] = await this.userService.deleteUser(userId);
     return { data: deleteUserData, message: 'deleted' };
   }
   @Post('/rooms/:rid/report/:uid')
+  @UseBefore(authMiddleware)
   @OpenAPI({ summary: 'report user' })
-  async reportUser(@Body() userData: reportUserDto, @Param('rid') roomId: number, @Param('uid') userId: number) {
-    await this.userService.reportUser(userData.accuserId, userId, roomId, userData.reportType);
+  async reportUser(@Req() req: RequestWithUser, @Body() userData: reportUserDto, @Param('rid') roomId: number, @Param('uid') userId: number) {
+    await this.userService.reportUser(req.user.id, userId, roomId, userData.reportType);
     return { message: 'reported' };
     //dto
   }

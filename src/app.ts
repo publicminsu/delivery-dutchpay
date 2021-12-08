@@ -15,6 +15,9 @@ import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { createConnection } from 'typeorm';
 import { dbConnection } from './databases';
+import 'reflect-metadata';
+import { createSocketServer } from 'socket-controllers';
+import { messageController } from './controllers/messageController';
 
 class App {
   public app: express.Application;
@@ -39,6 +42,9 @@ class App {
       logger.info(`======= ENV: ${this.env} =======`);
       logger.info(`🚀 App listening on the port ${this.port}`);
       logger.info(`=================================`);
+    });
+    createSocketServer(3001, {
+      controllers: [messageController],
     });
   }
 

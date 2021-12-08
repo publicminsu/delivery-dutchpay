@@ -1,3 +1,4 @@
+import { User } from '@/entity/user.entity';
 import { Contains, IsEmail, IsNumber, IsString } from 'class-validator';
 
 export class CreateUserDto {
@@ -17,15 +18,17 @@ export class CreateUserDto {
   @IsEmail({ allow_utf8_local_part: false }) //잘 적용되는거 같습니다. hknu.ac.kr이여야합니다.
   public email: string;
 }
-export class LogoutUserDto {
-  @IsString()
+export class LoginUserDto {
+  @Contains('@hknu.ac.kr')
+  @IsEmail({ allow_utf8_local_part: false })
   public email: string;
   @IsString()
   public password: string;
 }
 export class reportUserDto {
   @IsNumber()
-  public accuserId: number;
-  @IsNumber()
   public reportType: number;
+}
+export interface RequestWithUser extends Request {
+  user: User;
 }
