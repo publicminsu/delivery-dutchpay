@@ -7,6 +7,7 @@ import { AddMenuDto, AgreementDto, CreateRoomDto } from '@/dtos/room.dto';
 import { Tip } from '@/entity/tip.entity';
 import { Menu } from '@/entity/menu.entity';
 import { agreement, Participant } from '@/entity/participant.entity';
+import { Message } from '@/entity/chat.entity';
 
 class RoomService {
   public userRepository = getRepository(User);
@@ -14,12 +15,13 @@ class RoomService {
   public tipRepository = getRepository(Tip);
   public menuRepository = getRepository(Menu);
   public participantRepository = getRepository(Participant);
+  public messageRepository = getRepository(Message);
 
   public async findAllRoom(): Promise<Room[]> {
-    return this.roomRepository.find({ isActive: true });
+    return await this.roomRepository.find({ isActive: true });
   }
   public async findRoomByCategory(category: Category): Promise<Room[]> {
-    return this.roomRepository.find({ isActive: true, roomType: category });
+    return await this.roomRepository.find({ isActive: true, roomType: category });
   }
 
   public async findRoomById(roomId: number): Promise<Room> {
@@ -184,6 +186,9 @@ class RoomService {
       targetRoom.participants[i].agreement = agreement._Not;
     }
     return await this.roomRepository.save(targetRoom);
+  }
+  public async getMessage(rId: number): Promise<Message[]> {
+    return await this.messageRepository.find({ roomId: rId });
   }
 }
 

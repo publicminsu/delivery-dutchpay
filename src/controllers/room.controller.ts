@@ -1,5 +1,6 @@
 import { AddMenuDto, AgreementDto, CreateRoomDto, fileUploadOptions } from '@/dtos/room.dto';
 import { RequestWithUser } from '@/dtos/users.dto';
+import { Message } from '@/entity/chat.entity';
 import { Participant } from '@/entity/participant.entity';
 import { Category, Room } from '@/entity/room.entity';
 import authMiddleware from '@/middlewares/auth.middleware';
@@ -98,11 +99,15 @@ export class RoomController {
   @Get('/rooms/:rid/agreement') //put은 오류가 뜹니다.
   @OpenAPI({ summary: 'agreement init' })
   async initAgreement(@Param('rid') roomId: number) {
-    console.log(roomId);
     const initAgreementRoomData: Room = await this.roomService.initAgreement(roomId);
     return { data: initAgreementRoomData, message: 'init Agreement' };
   }
-
+  @Get('/rooms/:rid/message')
+  @OpenAPI({ summary: 'get message' })
+  async getMessage(@Param('rid') roomId: number) {
+    const getMessageData: Message[] = await this.roomService.getMessage(roomId);
+    return { data: getMessageData, message: 'get message' };
+  }
   @Get('/test')
   getAllUsers(@Res() response: Response) {
     const html = `

@@ -45,6 +45,11 @@ export class AgreementDto {
   @IsBoolean()
   public bool: boolean;
 }
+export class messageDto {
+  roomId: number;
+  userId: number;
+  text: string;
+}
 export const fileUploadOptions = {
   storage: multer.diskStorage({
     destination: (req: any, file: any, cb: any) => {
