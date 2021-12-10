@@ -29,6 +29,12 @@ export class reportUserDto {
   @IsNumber()
   public reportType: number;
 }
+export class estimateDto {
+  @IsNumber()
+  public targetUserId: number;
+  @IsNumber()
+  public score: number;
+}
 export interface RequestWithUser extends Request {
   user: User;
 }
