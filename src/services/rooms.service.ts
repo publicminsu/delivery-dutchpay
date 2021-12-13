@@ -28,10 +28,13 @@ class RoomService {
     const findRoom: Room = await this.roomRepository.findOne(roomId);
     if (!findRoom) throw new HttpException(409, 'no room');
     if (!findRoom.isActive) throw new HttpException(409, 'deactivated room');
-
     return findRoom;
   }
-
+  public async findRoomByUser(user: User): Promise<Room[]> {
+    const findRoom: Room[] = await this.roomRepository.find({ purchaser: user, isActive: true });
+    if (!findRoom) throw new HttpException(409, 'no room');
+    return findRoom;
+  }
   public async createRoom(user: User, roomData: CreateRoomDto): Promise<Room> {
     if (isEmpty(roomData)) throw new HttpException(400, 'invalid CreateRoomDto');
 

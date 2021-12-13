@@ -1,5 +1,5 @@
 import bcrypt, { hash } from 'bcrypt';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, estimateDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { User } from '@/entity/user.entity';
@@ -85,7 +85,12 @@ class UserService {
     report.defendant = findDefendant;
     report.room = findRoom;
     report.reportType = reportType;
-    await this.reportRepository.save(report);
+    return await this.reportRepository.save(report);
+  }
+  public async estimateUser(userData: estimateDto) {
+    const findTarget: User = await this.userRepository.findOne({ studentId: userData.targetUserId });
+    findTarget.mannerRate += userData.score;
+    return await this.userRepository.save(findTarget);
   }
 }
 

@@ -17,6 +17,13 @@ export class RoomController {
     const findAllRoomsData: Room[] = await this.roomService.findAllRoom();
     return { data: findAllRoomsData, message: 'findAll' };
   }
+  @Get('/rooms/create')
+  @UseBefore(authMiddleware)
+  @OpenAPI({ summary: 'find room by create' })
+  async getCreatedRoom(@Req() req: RequestWithUser) {
+    const getCreatedRoomData: Room[] = await this.roomService.findRoomByUser(req.user);
+    return { data: getCreatedRoomData, message: 'get room data' };
+  }
   @Get('/rooms/:Category/Category')
   async getRoomsByCategory(@Param('Category') category: Category) {
     const findAllRoomsData: Room[] = await this.roomService.findRoomByCategory(category);
@@ -107,24 +114,5 @@ export class RoomController {
   async getMessage(@Param('rid') roomId: number) {
     const getMessageData: Message[] = await this.roomService.getMessage(roomId);
     return { data: getMessageData, message: 'get message' };
-  }
-  @Get('/test')
-  getAllUsers(@Res() response: Response) {
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>practice</title>
-</head>
-<body>
-  <form action='/rooms/7/photo' method='post' enctype="multipart/form-data">
-    <input type="file" id="file" name="file">
-    <input type="submit">
-  </form>
-</body>
-</html>
-`;
-    return response.send(html);
   }
 }

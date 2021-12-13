@@ -1,11 +1,12 @@
 import { Controller, Param, Body, Get, Post, Put, Delete, HttpCode, UseBefore, Req } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { CreateUserDto, reportUserDto, RequestWithUser } from '@dtos/users.dto';
+import { CreateUserDto, estimateDto, reportUserDto, RequestWithUser } from '@dtos/users.dto';
 import userService from '@services/users.service';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import RoomService from '@/services/rooms.service';
 import { User } from '@/entity/user.entity';
 import authMiddleware from '@/middlewares/auth.middleware';
+import { Report } from '@/entity/report.entity';
 
 @Controller()
 export class UsersController {
@@ -53,8 +54,15 @@ export class UsersController {
   @UseBefore(authMiddleware)
   @OpenAPI({ summary: 'report user' })
   async reportUser(@Req() req: RequestWithUser, @Body() userData: reportUserDto, @Param('rid') roomId: number, @Param('uid') userId: number) {
-    await this.userService.reportUser(req.user.id, userId, roomId, userData.reportType);
-    return { message: 'reported' };
+    const reportData: Report = await this.userService.reportUser(req.user.id, userId, roomId, userData.reportType);
+    return { data: reportData, message: 'reported' };
+    //dto
+  }
+  @Post('/rooms/estimate')
+  @OpenAPI({ summary: 'estimate user' })
+  async estimateUser(@Body() userData: estimateDto) {
+    const estimateUserData = await this.userService.estimateUser(userData);
+    return { data: estimateUserData, message: 'reported' };
     //dto
   }
 }
